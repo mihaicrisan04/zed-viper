@@ -10,5 +10,5 @@ repository = "file:///Users/mihai/dev/master/Semester1/pp/zed-viper"
 # After changing the grammar: commit, then `mise run grammar:pin` and commit again.
 [grammars.viper]
 repository = "file:///Users/mihai/dev/master/Semester1/pp/zed-viper"
-rev = "HEAD"
+rev = "2b3a83b362dd9f5a5807ba3cc3059f60966e5e7e"
 path = "tree-sitter-viper"
