@@ -1,0 +1,14 @@
+id = "viper-verifier"
+name = "Viper"
+version = "0.1.0"
+schema_version = 1
+authors = ["Mihai Crisan"]
+description = "Viper verification language (.vpr) support"
+repository = "file:///Users/mihai/dev/master/Semester1/pp/zed-viper"
+
+# Zed checks out this commit of this repo and builds the grammar from `path`.
+# After changing the grammar: commit, then `mise run grammar:pin` and commit again.
+[grammars.viper]
+repository = "file:///Users/mihai/dev/master/Semester1/pp/zed-viper"
+rev = "HEAD"
+path = "tree-sitter-viper"

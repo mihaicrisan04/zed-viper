@@ -1,0 +1,31 @@
+[tools]
+tree-sitter = "0.27.0"
+
+[tasks."grammar:generate"]
+description = "regenerate the parser from grammar.js"
+dir = "tree-sitter-viper"
+run = "tree-sitter generate"
+
+[tasks."grammar:test"]
+description = "run the grammar's corpus tests"
+dir = "tree-sitter-viper"
+depends = ["grammar:generate"]
+run = "tree-sitter test"
+
+[tasks."grammar:coverage"]
+description = "parse Silver's test suite and report how many files parse without errors"
+dir = "tree-sitter-viper"
+depends = ["grammar:generate"]
+run = '''
+silver="${SILVER_TESTS:-$HOME/opt/src/silver/src/test/resources}"
+find "$silver" -name '*.vpr' > /tmp/viper-corpus.txt
+tree-sitter parse --quiet --stat --paths /tmp/viper-corpus.txt 2>/dev/null | grep "Total parses"
+'''
+
+[tasks."grammar:pin"]
+description = "point extension.toml at the latest commit that touched the grammar"
+run = '''
+rev=$(git log -1 --format=%H -- tree-sitter-viper)
+sed -i '' -E "s/^rev = \".*\"/rev = \"$rev\"/" extension.toml
+echo "grammar rev: $rev"
+'''

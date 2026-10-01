@@ -1,0 +1,224 @@
+================================================================================
+precedence: implies binds looser than and, forall body is greedy
+================================================================================
+
+method m(s: Seq[Int])
+  requires forall i: Int :: { s[i] } 0 <= i && i < |s| ==> s[i] >= 0
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (method_definition
+    (identifier)
+    (parameters
+      (typed_name
+        (identifier)
+        (type
+          (builtin_type)
+          (type
+            (builtin_type)))))
+    (requires
+      (quantifier
+        (typed_name
+          (identifier)
+          (type
+            (builtin_type)))
+        (trigger
+          (index_expression
+            (identifier)
+            (identifier)))
+        (binary_expression
+          (binary_expression
+            (binary_expression
+              (integer)
+              (identifier))
+            (binary_expression
+              (identifier)
+              (size_expression
+                (identifier))))
+          (binary_expression
+            (index_expression
+              (identifier)
+              (identifier))
+            (integer)))))))
+
+================================================================================
+unfolding with a ternary body
+================================================================================
+
+function len(x: Ref): Int
+  requires list(x)
+{
+  unfolding list(x) in (x.next == null ? 1 : 1 + len(x.next))
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (function_definition
+    (identifier)
+    (parameters
+      (typed_name
+        (identifier)
+        (type
+          (builtin_type))))
+    (type
+      (builtin_type))
+    (requires
+      (call
+        (identifier)
+        (arguments
+          (identifier))))
+    (expression_body
+      (unfolding_expression
+        (call
+          (identifier)
+          (arguments
+            (identifier)))
+        (parenthesized_expression
+          (ternary_expression
+            (binary_expression
+              (field_access
+                (identifier)
+                (identifier))
+              (null))
+            (integer)
+            (binary_expression
+              (integer)
+              (call
+                (identifier)
+                (arguments
+                  (field_access
+                    (identifier)
+                    (identifier)))))))))))
+
+================================================================================
+statements: assignment, multi-assign, call, fold, while with specs
+================================================================================
+
+method m(x: Ref) returns (a: Int, b: Int)
+{
+  var i: Int := 0
+  x.f := new(*)
+  a, b := split(x)
+  foo(x); fold acc(P(x), 1/2)
+  while (i < 10)
+    invariant i <= 10
+    decreases 10 - i
+  {
+    i := i + 1
+  }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (method_definition
+    (identifier)
+    (parameters
+      (typed_name
+        (identifier)
+        (type
+          (builtin_type))))
+    (parameters
+      (typed_name
+        (identifier)
+        (type
+          (builtin_type)))
+      (typed_name
+        (identifier)
+        (type
+          (builtin_type))))
+    (block
+      (variable_declaration
+        (typed_name
+          (identifier)
+          (type
+            (builtin_type)))
+        (integer))
+      (assignment
+        (field_access
+          (identifier)
+          (identifier))
+        (new_expression))
+      (assignment
+        (identifier)
+        (identifier)
+        (call
+          (identifier)
+          (arguments
+            (identifier))))
+      (call_statement
+        (call
+          (identifier)
+          (arguments
+            (identifier))))
+      (verification_statement
+        (acc_expression
+          (call
+            (identifier)
+            (arguments
+              (identifier)))
+          (binary_expression
+            (integer)
+            (integer))))
+      (while_statement
+        (binary_expression
+          (identifier)
+          (integer))
+        (invariant
+          (binary_expression
+            (identifier)
+            (integer)))
+        (decreases
+          (binary_expression
+            (integer)
+            (identifier)))
+        (block
+          (assignment
+            (identifier)
+            (binary_expression
+              (identifier)
+              (integer))))))))
+
+================================================================================
+domain with type parameters, typed call and annotation
+================================================================================
+
+@opaque()
+domain List[T] {
+  unique function nil(): List[T]
+  axiom ax { length((nil(): List[T])) == 0 }
+}
+
+--------------------------------------------------------------------------------
+
+(source_file
+  (annotation
+    (annotation_name))
+  (domain_definition
+    (identifier)
+    (type_parameters
+      (identifier))
+    (domain_function
+      (identifier)
+      (type
+        (identifier)
+        (type
+          (identifier))))
+    (axiom
+      (identifier)
+      (expression_body
+        (binary_expression
+          (call
+            (identifier)
+            (arguments
+              (parenthesized_expression
+                (call
+                  (identifier)
+                  (arguments))
+                (type
+                  (identifier)
+                  (type
+                    (identifier))))))
+          (integer))))))

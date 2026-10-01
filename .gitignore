@@ -1,0 +1,5 @@
+# written by "zed: install dev extension"
+grammars/
+extension.wasm
+*.wasm
+node_modules/
