@@ -8,7 +8,7 @@ repository = "https://github.com/mihaicrisan04/zed-viper"
 
 # Zed builds the grammar from this commit; after changing it, commit and run `mise run grammar:pin`.
 [grammars.viper]
-repository = "file:///Users/mihai/dev/personal/zed-viper"
+repository = "https://github.com/mihaicrisan04/zed-viper"
 rev = "2b3a83b362dd9f5a5807ba3cc3059f60966e5e7e"
 path = "tree-sitter-viper"
 
