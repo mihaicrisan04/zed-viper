@@ -1,0 +1,55 @@
+name: release
+
+on:
+  push:
+    tags: ["v*"]
+
+permissions:
+  contents: write
+
+jobs:
+  build:
+    strategy:
+      matrix:
+        include:
+          - { target: aarch64-apple-darwin, os: macos-latest }
+          - { target: x86_64-apple-darwin, os: macos-latest }
+          - { target: aarch64-unknown-linux-gnu, os: ubuntu-22.04-arm }
+          - { target: x86_64-unknown-linux-gnu, os: ubuntu-22.04 }
+          - { target: x86_64-pc-windows-msvc, os: windows-latest }
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - name: tag matches the viper-lsp version
+        shell: bash
+        run: |
+          version=$(grep -m1 '^version' viper-lsp/Cargo.toml | cut -d '"' -f2)
+          test "v$version" = "$GITHUB_REF_NAME" || { echo "tag $GITHUB_REF_NAME != v$version"; exit 1; }
+      - run: rustup target add ${{ matrix.target }}
+      - run: cargo build --locked --release --target ${{ matrix.target }}
+        working-directory: viper-lsp
+      - name: package
+        shell: bash
+        run: |
+          cd "viper-lsp/target/${{ matrix.target }}/release"
+          if [[ "${{ matrix.target }}" == *windows* ]]; then
+            7z a "$GITHUB_WORKSPACE/viper-lsp-${{ matrix.target }}.zip" viper-lsp.exe
+          else
+            tar -czf "$GITHUB_WORKSPACE/viper-lsp-${{ matrix.target }}.tar.gz" viper-lsp
+          fi
+      - uses: actions/upload-artifact@v7
+        with:
+          name: viper-lsp-${{ matrix.target }}
+          path: viper-lsp-${{ matrix.target }}.*
+
+  release:
+    needs: build
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v8
+        with:
+          path: dist
+          merge-multiple: true
+      - run: gh release create "$GITHUB_REF_NAME" --repo "$GITHUB_REPOSITORY" --generate-notes dist/*
+        env:
+          GH_TOKEN: ${{ github.token }}

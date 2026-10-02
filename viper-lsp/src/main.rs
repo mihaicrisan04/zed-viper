@@ -58,9 +58,10 @@ impl Config {
 
     /// Same arguments the VS Code extension passes for its built-in backends.
     fn backend_arguments(&self) -> String {
-        let z3 = format!("--z3Exe \"{}\"", self.tool("z3/bin/z3"));
+        let exe = std::env::consts::EXE_SUFFIX;
+        let z3 = format!("--z3Exe \"{}\"", self.tool(&format!("z3/bin/z3{exe}")));
         match self.backend.as_str() {
-            "carbon" => format!("{z3} --boogieExe \"{}\"", self.tool("boogie/Binaries/Boogie")),
+            "carbon" => format!("{z3} --boogieExe \"{}\"", self.tool(&format!("boogie/Binaries/Boogie{exe}"))),
             _ => z3,
         }
     }
@@ -165,7 +166,10 @@ fn uri_to_path(uri: &str) -> PathBuf {
             }
         }
     }
-    PathBuf::from(String::from_utf8_lossy(&bytes).into_owned())
+    let decoded = String::from_utf8_lossy(&bytes).into_owned();
+    // `file:///C:/x` on Windows: drop the slash in front of the drive letter
+    let is_drive_path = decoded.as_bytes().get(2) == Some(&b':') && decoded.starts_with('/');
+    PathBuf::from(if is_drive_path { &decoded[1..] } else { &decoded })
 }
 
 /// One `$/progress` token per verification, shown by the editor as a status bar spinner.
@@ -369,6 +373,10 @@ fn run() -> io::Result<()> {
 }
 
 fn main() {
+    if std::env::args().any(|arg| arg == "--version") {
+        println!("viper-lsp {}", env!("CARGO_PKG_VERSION"));
+        return;
+    }
     if let Err(error) = run() {
         log(format!("fatal: {error}"));
         std::process::exit(1);
@@ -388,6 +396,7 @@ mod tests {
     #[test]
     fn decodes_file_uris() {
         assert_eq!(uri_to_path("file:///tmp/with%20space/a.vpr"), PathBuf::from("/tmp/with space/a.vpr"));
+        assert_eq!(uri_to_path("file:///c%3A/Users/a.vpr"), PathBuf::from("c:/Users/a.vpr"));
     }
 
     #[test]

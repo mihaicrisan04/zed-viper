@@ -1,0 +1,38 @@
+name: ci
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  bridge:
+    strategy:
+      matrix:
+        os: [ubuntu-latest, macos-latest, windows-latest]
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v7
+      - run: cargo test --locked
+        working-directory: viper-lsp
+      - run: cargo clippy --locked -- -D warnings
+        working-directory: viper-lsp
+
+  extension:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+      - run: rustup target add wasm32-wasip2
+      - run: cargo clippy --locked --target wasm32-wasip2 -- -D warnings
+      - run: cargo build --locked --release --target wasm32-wasip2
+
+  grammar:
+    runs-on: ubuntu-latest
+    env:
+      MISE_TRUSTED_CONFIG_PATHS: ${{ github.workspace }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: jdx/mise-action@v5
+      - run: mise run grammar:test
+      - name: generated parser is committed
+        run: git diff --exit-code tree-sitter-viper/src

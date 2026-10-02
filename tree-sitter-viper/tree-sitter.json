@@ -5,13 +5,23 @@
       "name": "viper",
       "camelcase": "Viper",
       "scope": "source.viper",
-      "file-types": ["vpr"],
+      "file-types": [
+        "vpr"
+      ],
       "injection-regex": "^viper$"
     }
   ],
   "metadata": {
     "version": "0.1.0",
     "license": "MIT",
-    "description": "Viper verification language grammar for tree-sitter"
+    "description": "Viper verification language grammar for tree-sitter",
+    "authors": [
+      {
+        "name": "Mihai Crisan"
+      }
+    ],
+    "links": {
+      "repository": "https://github.com/mihaicrisan04/zed-viper"
+    }
   }
 }
