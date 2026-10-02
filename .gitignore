@@ -3,3 +3,4 @@ grammars/
 extension.wasm
 *.wasm
 node_modules/
+target/

@@ -1,0 +1,9 @@
+[package]
+name = "viper-lsp"
+version = "0.1.0"
+edition = "2024"
+description = "stdio LSP bridge to ViperServer, verifies .vpr files on open and save"
+publish = false
+
+[dependencies]
+serde_json = "1"

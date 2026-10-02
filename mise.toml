@@ -29,3 +29,12 @@ rev=$(git log -1 --format=%H -- tree-sitter-viper)
 sed -i '' -E "s/^rev = \".*\"/rev = \"$rev\"/" extension.toml
 echo "grammar rev: $rev"
 '''
+
+[tasks."lsp:install"]
+description = "build and install the viper-lsp bridge into ~/.cargo/bin"
+run = "cargo install --path viper-lsp"
+
+[tasks."lsp:test"]
+description = "unit tests for the viper-lsp bridge"
+dir = "viper-lsp"
+run = "cargo test"
